@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="support-vector-drawable-25.1.1">
+    <CLASSES>
+      <root url="jar://D:/ProgramFile/AndroidPhonModel/.android/build-cache/cc635197ce3cf02ddaacb2b895d700bcacebf6ce/output/jars/classes.jar!/" />
+      <root url="file://D:/ProgramFile/AndroidPhonModel/.android/build-cache/cc635197ce3cf02ddaacb2b895d700bcacebf6ce/output/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://F:/SDKTools/sdk/extras/android/m2repository/com/android/support/support-vector-drawable/25.1.1/support-vector-drawable-25.1.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
