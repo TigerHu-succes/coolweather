@@ -9,7 +9,7 @@ import org.litepal.LitePalApplication;
  * Created by Administrator on 2017/3/13.
  */
 
-public class MyApplication extends Application {
+public class ApplicationUtil extends Application {
 
     private static Context context;
 
