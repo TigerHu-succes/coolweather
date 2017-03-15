@@ -33,7 +33,7 @@ public class GsonUtil {
 
                     jsonObject = allProvince.getJSONObject(i);
                     province = new Province();
-                    province.setId(jsonObject.getInt("id"));
+                    province.setProvinceCode(jsonObject.getInt("id"));
                     province.setProvinceName(jsonObject.getString("name"));
                     province.save();
                 }
@@ -66,7 +66,7 @@ public class GsonUtil {
 
                     jsonObject = allCity.getJSONObject(i);
                     city = new City();
-                    city.setId(jsonObject.getInt("id"));
+                    city.setCityCode(jsonObject.getInt("id"));
                     city.setCityName(jsonObject.getString("name"));
                     city.setProvinceId(provinceId);
                     city.save();
@@ -101,7 +101,7 @@ public class GsonUtil {
 
                     jsonObject = allCity.getJSONObject(i);
                     county = new County();
-                    county.setId(jsonObject.getInt("id"));
+                    county.setCountyCode(jsonObject.getInt("id"));
                     county.setCountyName(jsonObject.getString("name"));
                     county.setCityId(cityId);
                     county.setWeatherId(jsonObject.getString("weather_id"));

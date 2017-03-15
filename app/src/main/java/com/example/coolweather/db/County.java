@@ -12,6 +12,8 @@ public class County extends DataSupport{
 
     private String countyName;
 
+    private int countyCode;
+
     private int cityId;
 
     private String weatherId;
@@ -19,6 +21,14 @@ public class County extends DataSupport{
 
     public int getId() {
         return id;
+    }
+
+    public int getCountyCode() {
+        return countyCode;
+    }
+
+    public void setCountyCode(int countyCode) {
+        this.countyCode = countyCode;
     }
 
     public void setId(int id) {
