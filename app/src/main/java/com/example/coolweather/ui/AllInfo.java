@@ -1,6 +1,7 @@
 package com.example.coolweather.ui;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,13 +15,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.coolweather.MainActivity;
 import com.example.coolweather.R;
+import com.example.coolweather.WeatherActivity;
 import com.example.coolweather.db.City;
 import com.example.coolweather.db.County;
 import com.example.coolweather.db.Province;
 import com.example.coolweather.util.GsonUtil;
 import com.example.coolweather.util.HttpUtil;
 import com.example.coolweather.util.LogUtil;
+import com.example.coolweather.util.SaveUtil;
 import com.example.coolweather.util.UilUtil;
 
 import org.litepal.crud.DataSupport;
@@ -81,7 +85,7 @@ public class AllInfo extends Fragment {
     }
 
     private void init() {
-        dataList=new ArrayList<>();
+        dataList = new ArrayList<>();
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, dataList);
         ls.setAdapter(adapter);
         ls.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -90,16 +94,38 @@ public class AllInfo extends Fragment {
 
                 if (counterLevel == LEVEL_PROVINCE) {
 
-                    selectProvince=provinceList.get(position);
+                    selectProvince = provinceList.get(position);
 
                     queryCity();
 
                 } else if (counterLevel == LEVEL_CITY) {
                     selcetCity = cityList.get(position);
                     queryCounty();
+                } else if (counterLevel == LEVEL_COUNTY) {
+
+                    if (getActivity() instanceof MainActivity) {
+
+                        County county = countyList.get(position);
+                        Intent intent = new Intent(getContext(), WeatherActivity.class);
+                        intent.putExtra("weather_id", county.getWeatherId());
+                        startActivity(intent);
+                        getActivity().finish();
+
+
+                    } else if (getActivity() instanceof WeatherActivity) {
+
+                        County county = countyList.get(position);
+
+                        WeatherActivity weatherActivity = (WeatherActivity) getActivity();
+
+                        weatherActivity.drawerLayout.closeDrawers();
+
+                        weatherActivity.requestInfo(county.getWeatherId());
+
+
+                    }
+
                 }
-
-
             }
         });
 
@@ -112,11 +138,11 @@ public class AllInfo extends Fragment {
 
         provinceList = DataSupport.findAll(Province.class);
 
-        if(provinceList.size()>0){
+        if (provinceList.size() > 0) {
 
             dataList.clear();
 
-            for(Province temp:provinceList){
+            for (Province temp : provinceList) {
 
                 dataList.add(temp.getProvinceName());
             }
@@ -124,12 +150,12 @@ public class AllInfo extends Fragment {
             adapter.notifyDataSetChanged();
             ls.setSelection(0);
 
-        }else {
-            String address= UilUtil.URL;
-            requestData(address,"province");
+        } else {
+            String address = UilUtil.URL;
+            requestData(address, "province");
         }
 
-        counterLevel=LEVEL_PROVINCE;
+        counterLevel = LEVEL_PROVINCE;
     }
 
     private void queryCity() {
@@ -142,11 +168,11 @@ public class AllInfo extends Fragment {
                 .find(City.class);
 
 
-        if(cityList.size()>0){
+        if (cityList.size() > 0) {
 
             dataList.clear();
 
-            for(City temp:cityList){
+            for (City temp : cityList) {
 
                 dataList.add(temp.getCityName());
             }
@@ -154,15 +180,15 @@ public class AllInfo extends Fragment {
             adapter.notifyDataSetChanged();
             ls.setSelection(0);
 
-        }else {
+        } else {
 
-            String address= UilUtil.URL+"/"+selectProvince.getProvinceCode();
-            requestData(address,"city");
+            String address = UilUtil.URL + "/" + selectProvince.getProvinceCode();
+            requestData(address, "city");
 
         }
 
 
-        counterLevel=LEVEL_CITY;
+        counterLevel = LEVEL_CITY;
     }
 
     private void queryCounty() {
@@ -173,11 +199,11 @@ public class AllInfo extends Fragment {
         countyList = DataSupport.where("cityId=?", String.valueOf(selcetCity.getCityCode())).find(County.class);
 
 
-        if(countyList.size()>0){
+        if (countyList.size() > 0) {
 
             dataList.clear();
 
-            for(County temp:countyList){
+            for (County temp : countyList) {
 
                 dataList.add(temp.getCountyName());
             }
@@ -185,35 +211,34 @@ public class AllInfo extends Fragment {
             adapter.notifyDataSetChanged();
             ls.setSelection(0);
 
-        }else {
+        } else {
 
-            String address= UilUtil.URL+"/"+selectProvince.getId()+"/"+selcetCity.getCityCode();
-            requestData(address,"county");
+            String address = UilUtil.URL + "/" + selectProvince.getId() + "/" + selcetCity.getCityCode();
+            requestData(address, "county");
 
         }
 
 
-        counterLevel=LEVEL_COUNTY;
+        counterLevel = LEVEL_COUNTY;
     }
 
 
     @OnClick(R.id.bn)
     public void buttonOnclick() {
 
-        if(counterLevel==LEVEL_COUNTY){
+        if (counterLevel == LEVEL_COUNTY) {
 
             queryCity();
 
-        }else if(counterLevel==LEVEL_CITY){
+        } else if (counterLevel == LEVEL_CITY) {
 
             queryProvince();
         }
 
 
-
     }
 
-    private void requestData(String address,final String type) {
+    private void requestData(String address, final String type) {
 
         showDialogProgress();
 
@@ -222,7 +247,7 @@ public class AllInfo extends Fragment {
             @Override
             public void onFailure(Call call, IOException e) {
 
-                Toast.makeText(getContext(),"网络不佳",Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "网络不佳", Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -230,36 +255,36 @@ public class AllInfo extends Fragment {
 
                 String content = response.body().string();
 
-                boolean results=false;
+                boolean results = false;
 
-                if("province".equals(type)){
+                if ("province".equals(type)) {
 
-                    results= GsonUtil.handleProvinceResponse(content);
+                    results = GsonUtil.handleProvinceResponse(content);
 
-                }else if("city".equals(type)){
+                } else if ("city".equals(type)) {
 
-                    results=GsonUtil.handleCityResponse(content,selectProvince.getProvinceCode());
+                    results = GsonUtil.handleCityResponse(content, selectProvince.getProvinceCode());
 
-                }else if("county".equals(type)){
+                } else if ("county".equals(type)) {
 
-                    results=GsonUtil.handleCountyResponse(content,selcetCity.getCityCode());
+                    results = GsonUtil.handleCountyResponse(content, selcetCity.getCityCode());
                 }
 
-                if(results){
+                if (results) {
 
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             closeDialogProgress();
-                            if("province".equals(type)){
+                            if ("province".equals(type)) {
 
                                 queryProvince();
 
-                            }else if("city".equals(type)){
+                            } else if ("city".equals(type)) {
 
-                               queryCity();
+                                queryCity();
 
-                            }else if("county".equals(type)){
+                            } else if ("county".equals(type)) {
 
                                 queryCounty();
                             }
@@ -279,10 +304,9 @@ public class AllInfo extends Fragment {
     }
 
 
+    private void showDialogProgress() {
 
-    private void showDialogProgress(){
-
-        if(progressDialog==null) {
+        if (progressDialog == null) {
             progressDialog = new ProgressDialog(getContext());
             progressDialog.setTitle("加载中...");
             progressDialog.setCanceledOnTouchOutside(false);
@@ -290,9 +314,9 @@ public class AllInfo extends Fragment {
         progressDialog.show();
     }
 
-    private void closeDialogProgress(){
+    private void closeDialogProgress() {
 
-        if(progressDialog!=null) {
+        if (progressDialog != null) {
 
             progressDialog.dismiss();
         }
